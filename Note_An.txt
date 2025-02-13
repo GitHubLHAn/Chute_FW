@@ -1,0 +1,11 @@
+- Phiên bản mạch báo máng thứ 3, mạch màu đỏ.
+
+- Người thiết kế: Nguyễn Văn Hữu.
+
+- Bao gồm 2 mạch master và slave.
+
+- Đèn còi điều khiển bởi mạch master, master có cơ chế enable và quét thông tin của các slave.
+
+- Giao thức giữa app và master là RS485.
+
+- Giao thức giữa master và slave là RS485.
