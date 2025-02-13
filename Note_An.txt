@@ -1,0 +1,9 @@
+- Phiên bản mạch Chute V1
+
+- Đây là phiên bản thử nghiệm, gồm các mạch slave (không có master)
+
+- Tồn tại lỗi cổng RS485 trùng với cổng debug
+
+- Phần cứng do Dương Công Thành thiết kế
+
+- Không ứng dụng cho dự án nào.
