@@ -1,0 +1,9 @@
+- Đây là phiên bản thứ 2, mạch màu tím.
+
+- Phiên bản nâng cấp của v1, sửa các lỗi của v1.
+
+- Người thiết kế: Dương Công Thành
+
+- Phiên bản đèn còi nằm trên mạch slave (không có master).
+
+- Ứng dụng trong hệ thống báo máng ở Yody Hải Dương.
