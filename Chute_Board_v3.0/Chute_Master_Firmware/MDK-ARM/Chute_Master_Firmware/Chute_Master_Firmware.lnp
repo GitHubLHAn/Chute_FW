@@ -1,0 +1,27 @@
+--cpu Cortex-M3
+"chute_master_firmware\startup_stm32f103xb.o"
+"chute_master_firmware\user.o"
+"chute_master_firmware\slave.o"
+"chute_master_firmware\app.o"
+"chute_master_firmware\main.o"
+"chute_master_firmware\stm32f1xx_it.o"
+"chute_master_firmware\stm32f1xx_hal_msp.o"
+"chute_master_firmware\stm32f1xx_hal_gpio_ex.o"
+"chute_master_firmware\stm32f1xx_hal_tim.o"
+"chute_master_firmware\stm32f1xx_hal_tim_ex.o"
+"chute_master_firmware\stm32f1xx_hal.o"
+"chute_master_firmware\stm32f1xx_hal_rcc.o"
+"chute_master_firmware\stm32f1xx_hal_rcc_ex.o"
+"chute_master_firmware\stm32f1xx_hal_gpio.o"
+"chute_master_firmware\stm32f1xx_hal_dma.o"
+"chute_master_firmware\stm32f1xx_hal_cortex.o"
+"chute_master_firmware\stm32f1xx_hal_pwr.o"
+"chute_master_firmware\stm32f1xx_hal_flash.o"
+"chute_master_firmware\stm32f1xx_hal_flash_ex.o"
+"chute_master_firmware\stm32f1xx_hal_exti.o"
+"chute_master_firmware\stm32f1xx_hal_uart.o"
+"chute_master_firmware\system_stm32f1xx.o"
+--strict --scatter "Chute_Master_Firmware\Chute_Master_Firmware.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "Chute_Master_Firmware.map" -o Chute_Master_Firmware\Chute_Master_Firmware.axf

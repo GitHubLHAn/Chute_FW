@@ -1,0 +1,28 @@
+--cpu Cortex-M3
+"chute_slave_firmware\startup_stm32f103xb.o"
+"chute_slave_firmware\flash_address.o"
+"chute_slave_firmware\rs485.o"
+"chute_slave_firmware\st7920.o"
+"chute_slave_firmware\user.o"
+"chute_slave_firmware\main.o"
+"chute_slave_firmware\stm32f1xx_it.o"
+"chute_slave_firmware\stm32f1xx_hal_msp.o"
+"chute_slave_firmware\stm32f1xx_hal_gpio_ex.o"
+"chute_slave_firmware\stm32f1xx_hal_tim.o"
+"chute_slave_firmware\stm32f1xx_hal_tim_ex.o"
+"chute_slave_firmware\stm32f1xx_hal.o"
+"chute_slave_firmware\stm32f1xx_hal_rcc.o"
+"chute_slave_firmware\stm32f1xx_hal_rcc_ex.o"
+"chute_slave_firmware\stm32f1xx_hal_gpio.o"
+"chute_slave_firmware\stm32f1xx_hal_dma.o"
+"chute_slave_firmware\stm32f1xx_hal_cortex.o"
+"chute_slave_firmware\stm32f1xx_hal_pwr.o"
+"chute_slave_firmware\stm32f1xx_hal_flash.o"
+"chute_slave_firmware\stm32f1xx_hal_flash_ex.o"
+"chute_slave_firmware\stm32f1xx_hal_exti.o"
+"chute_slave_firmware\stm32f1xx_hal_uart.o"
+"chute_slave_firmware\system_stm32f1xx.o"
+--strict --scatter "Chute_Slave_Firmware\Chute_Slave_Firmware.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "Chute_Slave_Firmware.map" -o Chute_Slave_Firmware\Chute_Slave_Firmware.axf

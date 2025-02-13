@@ -1,0 +1,64 @@
+T3948 000:049.981   SEGGER J-Link V6.70e Log File
+T3948 000:050.093   DLL Compiled: Apr 17 2020 17:55:05
+T3948 000:050.109   Logging started @ 2025-02-07 07:11
+T3948 000:050.117 JLINK_SetWarnOutHandler(...)
+T3948 000:050.125 - 0.010ms
+T3948 000:050.135 JLINK_OpenEx(...)
+T3948 000:051.837   Firmware: J-Link ARM-OB STM32 compiled Aug 22 2012 19:52:04
+T3948 000:055.095   Hardware: V7.00
+T3948 000:055.116   S/N: 20090928
+T3948 000:055.125   OEM: SEGGER
+T3948 000:055.134   Feature(s): RDI,FlashDL,FlashBP,JFlash,GDB
+T3948 000:056.481   TELNET listener socket opened on port 19021
+T3948 000:056.626   WEBSRV Starting webserver
+T3948 000:056.908   WEBSRV Webserver running on local port 19080
+T3948 000:056.921 - 6.789ms returns "O.K."
+T3948 000:056.963 JLINK_GetEmuCaps()
+T3948 000:056.970 - 0.009ms returns 0x88EA5833
+T3948 000:056.982 JLINK_TIF_GetAvailable(...)
+T3948 000:057.277 - 0.302ms
+T3948 000:057.292 JLINK_SetErrorOutHandler(...)
+T3948 000:057.298 - 0.009ms
+T3948 000:057.316 JLINK_ExecCommand("ProjectFile = "C:\Users\ADMIN\Google Drive\Chute_Board__\Chute_Board_v3.0\Chute_Slave_Firmware\MDK-ARM\JLinkSettings.ini"", ...). 
+T3948 000:064.924 - 7.632ms returns 0x00
+T3948 000:079.327 JLINK_ExecCommand("Device = STM32F103C8", ...). 
+T3948 000:083.898   Device "STM32F103C8" selected.
+T3948 000:084.182 - 4.830ms returns 0x00
+T3948 000:084.200 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T3948 000:084.212 - 0.006ms returns 0x01
+T3948 000:084.220 JLINK_GetHardwareVersion()
+T3948 000:084.226 - 0.009ms returns 0x11170
+T3948 000:084.236 JLINK_GetDLLVersion()  returns 67005
+T3948 000:084.251 JLINK_GetFirmwareString(...)
+T3948 000:084.258 - 0.009ms
+T3948 000:094.250 JLINK_GetDLLVersion()  returns 67005
+T3948 000:094.275 JLINK_GetCompileDateTime()
+T3948 000:094.281 - 0.008ms
+T3948 000:098.695 JLINK_GetFirmwareString(...)
+T3948 000:098.710 - 0.018ms
+T3948 000:102.446 JLINK_GetHardwareVersion()
+T3948 000:102.459 - 0.016ms returns 0x11170
+T3948 000:115.967 JLINK_TIF_Select(JLINKARM_TIF_JTAG)
+T3948 000:118.441 - 2.484ms returns 0x00
+T3948 000:118.468 JLINK_SetSpeed(5000)
+T3948 000:118.777 - 0.317ms
+T3948 000:118.793 JLINK_GetIdData(pIdData)
+T3948 000:125.285   Could not measure total IR len. TDO is constant high.
+T3948 000:130.960   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T3948 000:188.655   Could not measure total IR len. TDO is constant high.
+T3948 000:189.704   
+  ***** Error: 
+T3948 000:189.730   STM32: Connecting to CPU via connect under reset failed.
+T3948 000:310.205   Could not measure total IR len. TDO is constant high.
+T3948 000:314.171   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T3948 000:371.421   Could not measure total IR len. TDO is constant high.
+T3948 000:372.319   
+  ***** Error: 
+T3948 000:372.342   STM32: Connecting to CPU via connect under reset failed.
+T3948 000:423.175 - 304.404ms
+T57D4 004:539.812   
+  ***** Error: Connection to emulator lost!
+T3948 051:173.263 JLINK_Close()
+T3948 051:181.785 - 8.545ms
+T3948 051:181.814   
+T3948 051:181.825   Closed
