@@ -12,6 +12,8 @@
 #include "main.h"
 #include "stdbool.h"
 
+#include "slave.h"
+
 /*DEFINE*/
 
 	#define		CHUTE_OPEN			0x00				// 0000 0000
@@ -42,17 +44,17 @@
 	#define OFF_SPEAKER( )			HAL_GPIO_WritePin(SPEAKER_GPIO_Port, SPEAKER_Pin, GPIO_PIN_RESET);
 	
 	/*Porting LED*/
-	#define ON_LED_DEBUG( )			HAL_GPIO_WritePin(LED_DEBUG_GPIO_Port, LED_DEBUG_Pin, GPIO_PIN_RESET);
-	#define OFF_LED_DEBUG( )		HAL_GPIO_WritePin(LED_DEBUG_GPIO_Port, LED_DEBUG_Pin, GPIO_PIN_SET);
+	#define ON_LED_DEBUG( )			HAL_GPIO_WritePin(LED_DEBUG_GPIO_Port, LED_DEBUG_Pin, GPIO_PIN_SET);
+	#define OFF_LED_DEBUG( )		HAL_GPIO_WritePin(LED_DEBUG_GPIO_Port, LED_DEBUG_Pin, GPIO_PIN_RESET);
 	
-	#define ON_LED_APP( )			HAL_GPIO_WritePin(LED_TRX_APP_GPIO_Port, LED_TRX_APP_Pin, GPIO_PIN_RESET);
-	#define OFF_LED_APP( )		HAL_GPIO_WritePin(LED_TRX_APP_GPIO_Port, LED_TRX_APP_Pin, GPIO_PIN_SET);
+	#define ON_LED_APP( )			HAL_GPIO_WritePin(LED_TRX_APP_GPIO_Port, LED_TRX_APP_Pin, GPIO_PIN_SET);
+	#define OFF_LED_APP( )		HAL_GPIO_WritePin(LED_TRX_APP_GPIO_Port, LED_TRX_APP_Pin, GPIO_PIN_RESET);
 	
-	#define ON_LED_TRX_A( )			HAL_GPIO_WritePin(LED_TRX_SLAVEA_GPIO_Port, LED_TRX_SLAVEA_Pin, GPIO_PIN_RESET);
-	#define OFF_LED_TRX_A( )		HAL_GPIO_WritePin(LED_TRX_SLAVEA_GPIO_Port, LED_TRX_SLAVEA_Pin, GPIO_PIN_SET);
+	#define ON_LED_TRX_A( )			HAL_GPIO_WritePin(LED_TRX_SLAVEA_GPIO_Port, LED_TRX_SLAVEA_Pin, GPIO_PIN_SET);
+	#define OFF_LED_TRX_A( )		HAL_GPIO_WritePin(LED_TRX_SLAVEA_GPIO_Port, LED_TRX_SLAVEA_Pin, GPIO_PIN_RESET);
 	
-	#define ON_LED_TRX_B( )			HAL_GPIO_WritePin(LED_TRX_SLAVEB_GPIO_Port, LED_TRX_SLAVEB_Pin, GPIO_PIN_RESET);
-	#define OFF_LED_TRX_B( )		HAL_GPIO_WritePin(LED_TRX_SLAVEB_GPIO_Port, LED_TRX_SLAVEB_Pin, GPIO_PIN_SET);
+	#define ON_LED_TRX_B( )			HAL_GPIO_WritePin(LED_TRX_SLAVEB_GPIO_Port, LED_TRX_SLAVEB_Pin, GPIO_PIN_SET);
+	#define OFF_LED_TRX_B( )		HAL_GPIO_WritePin(LED_TRX_SLAVEB_GPIO_Port, LED_TRX_SLAVEB_Pin, GPIO_PIN_RESET);
 	
 
 /************************************************************************************/
@@ -70,17 +72,17 @@
 	
 	uint32_t getMicroSecond(void);
 	
-	
-	
 	void Master_Process(void);
 	
 	void Debug_Function(void);
-
-
-
+	
+	void Handle_Lamp(void);
+	
 /*EXTERN*/
 
 	extern UART_HandleTypeDef *pSlavePort;
+	
+	extern uint8_t ID_Master;
 	
 	extern volatile uint16_t cnt_debug;
 	
@@ -90,6 +92,8 @@
 								flag_flashLed_app, 
 								flag_flashLed_trxA, 
 								flag_flashLed_trxB;
+	
+	extern uint8_t Full_check_arr[NUMBER_SLAVE];
 	
 
 

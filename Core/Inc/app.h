@@ -13,62 +13,50 @@
 
 
 /*DEFINE*/
-	#define RS485_WAIT_STATE 						0
-	#define RS485_READING_STATE 				1
-	#define RS485_READING_CONFIG_STATE 	2
-
-	#define RS485_NUM_BYTE  				3
-	#define RS485_NUM_BYTE_CONFIG 	15
-
-	#define RS485_MESS_OK		 2
-	#define RS485_WRONG	 		 1
-
-	#define RS485_CHECK_ID_MASK		0x3F
 	
-	#define RS485_CMD_MASK					0xC0
-	#define RS485_CONFIG_CMD				0x80		// 10 000000
-	#define RS485_OPEN_CHUTE_CMD		0x00		// 00 000000
-	#define RS485_CLOSE_CHUTE_CMD		0x40		// 01 000000
+	#define NUM_BYTE_APP	3
+	
+	#define READ_HD_APP				0		// read ID
+	#define READ_DT_APP				1		// read quantity
+	#define READ_CS_APP				2		// read checksum
+	
+	
+	#define MODE_SEND_APP(	)				HAL_GPIO_WritePin(RS485_APP_DE_GPIO_Port, RS485_APP_DE_Pin, GPIO_PIN_SET)
+	#define MODE_RECEIVE_APP(		)		HAL_GPIO_WritePin(RS485_APP_DE_GPIO_Port, RS485_APP_DE_Pin, GPIO_PIN_RESET)
+
 
 /************************************************************************************/
 /*DECLARE STRUCT*/
+	
 	typedef struct
 	{
 		UART_HandleTypeDef *huart;
 		
-		uint8_t rxBuff[RS485_NUM_BYTE];
-		uint8_t txBuff[RS485_NUM_BYTE];
-		uint8_t RxFlag, TxFlag;
+		uint8_t RxFlag;
 		uint8_t STATE;
-		uint8_t rxByte, rxPointer;
-		uint8_t type_cmd;											
-		uint8_t CS_byte;	
+		uint8_t rxByte;		
 		
 		uint16_t cnt_mess_sent;				
 		uint16_t cnt_mess_received;		
 		uint16_t cnt_mess_wrong;		
 		
-		uint8_t Sequence_number;				// So thu tu mang trong line (0->63)
-
-		/*Use for config chute address*/
-		uint8_t rxBuff_config[RS485_NUM_BYTE_CONFIG];
-		uint8_t txBuff_config[RS485_NUM_BYTE];
-		uint8_t RxFlag_config, TxFlag_config;
-		
-	}rs485_t;
+	}app_com_t;		// application communication
 
 	
 /*DECLARE FUNCTION*/
-//	uint8_t RS485_Read(rs485_t *pRx);
-//	
-//	void RS485_Init(rs485_t *pRS, UART_HandleTypeDef *huart);
-//		
-//	uint8_t RS485_Rx_Handle(rs485_t *pRS);
-//	
-//	uint8_t RS485_Transmit(rs485_t *pRS);
+	
+	void App_Init_Func(app_com_t *pApp, UART_HandleTypeDef *huart);
+	
+	void Read_App(app_com_t *pAPP);
 
 /*EXTERN*/
-extern rs485_t vRS485;	
+	
+	extern app_com_t vApp;
+	
+	extern bool flag_wait_sending_slave;
+	
+	extern uint8_t TX_toApp[NUM_BYTE_APP];
+	extern uint8_t RX_fromApp[NUM_BYTE_APP];
 
 /************************************************************************************/
 #endif /* RS485_H_*/

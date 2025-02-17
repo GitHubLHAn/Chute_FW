@@ -31,3 +31,6 @@ chute_master_firmware\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_
 chute_master_firmware\main.o: ../Core/Inc/user.h
 chute_master_firmware\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 chute_master_firmware\main.o: ../Core/Inc/slave.h
+chute_master_firmware\main.o: ../Core/Inc/app.h
+chute_master_firmware\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+chute_master_firmware\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

@@ -14,7 +14,7 @@
 
 
 /*DEFINE*/
-	#define NUMBER_SLAVE	10
+	#define NUMBER_SLAVE	31
 	
 	#define NUM_BYTE_SLAVE	3
 	
@@ -30,9 +30,11 @@
 //	#define SLAVE_OPEN_CHUTE_CMD		0x00		// 00 000000
 //	#define SLAVE_CLOSE_CHUTE_CMD		0x40		// 01 000000
 
-	#define SLAVE_READ_HD				0		// read ID
-	#define SLAVE_READ_DT			1		// read quantity
-	#define SLAVE_READ_CS				2		// read checksum
+	#define SLAVE_READ_HD						0		// read ID
+	#define SLAVE_READ_DT						1		// read quantity
+	#define SLAVE_READ_CS						2		// read checksum
+	#define SLAVE_READ_DT_CONFIG				3		// read checksum
+	#define SLAVE_READ_CS_CONFIG				4		// read checksum
 
 
 /************************************************************************************/
@@ -79,7 +81,7 @@
 	
 	void Slave_Init_Func(UART_HandleTypeDef *huart);
 
-	void Send_Slave_Sync(uint8_t _vSync);
+	void Send_Slave_Sync(uint8_t *_vSync);
 		
 	uint8_t SendCMD_Slave(void);
 	

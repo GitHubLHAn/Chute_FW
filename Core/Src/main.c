@@ -25,6 +25,12 @@
 	#include "user.h"
 	
 	#include "slave.h"
+	
+	#include "app.h"
+	
+	#include "string.h"
+	
+	#include "stdio.h"
 
 /* USER CODE END Includes */
 
@@ -59,10 +65,11 @@ DMA_HandleTypeDef hdma_usart3_tx;
 
 	uint32_t tick_debug = 0;
 	
-	uint8_t flag_an_debug = 111;
+	uint8_t flag_an_debug = 0;
 	
 	volatile uint16_t auto_send = 0;
-	uint16_t cycle_auto = 1000;
+	uint16_t cycle_auto = 100;
+	uint16_t ptr_autosend = 1;
 	
 	
 	extern uint8_t TX_toSlave[3];
@@ -74,6 +81,13 @@ DMA_HandleTypeDef hdma_usart3_tx;
 	
 	uint16_t db_miss = 0;
 	float db_phantram = 0.0f;
+	
+	extern uint16_t cnt_flag_config;
+	uint8_t TX_config_db[20];
+	
+	uint8_t mode_config = 0;
+	
+	
 
 /* USER CODE END PV */
 
@@ -138,8 +152,9 @@ int main(void)
 	
 		Master_Init_Func();
 		
+		App_Init_Func(&vApp, &huart1);
 		
-		HAL_Delay(100);
+		HAL_Delay(1500);
 		
 		Slave_Init_Func(pSlavePort);
 
@@ -163,39 +178,63 @@ int main(void)
 		
 		Debug_Function();
 		
-		//if(flag_an_debug == 1)
-////		if(auto_send >= cycle_auto)
-////		{
-////			On_Mode_Send_Slave();
-////			//HAL_Delay(10);
-////			TX_toSlave[0] = (List_Chute_Arr[1].sl_status & SLAVE_STATE_MASK) | (1 & 0x3F);
-////			TX_toSlave[1] = List_Chute_Arr[1].cnt_mess_tx;
-////			TX_toSlave[NUM_BYTE_SLAVE-1] = Cal_CheckSum(TX_toSlave, NUM_BYTE_SLAVE);
-////			/*
-////			 * Byte 0: bit7,6 define state of Slave, bit 5,4,3,2,1,0 define the sequense of Slave
-////			 * Byte 1: quantity of packet in chute slave
-////			 * Byte 2: Checksum Byte
-////			 */
-////		
-////			db_s = getMicroSecond();
-////			start_send_slave = getMicroSecond();
-////			HAL_UART_Transmit_DMA(List_Chute_Arr[1].phuart, TX_toSlave, NUM_BYTE_SLAVE);
-////			//HAL_UART_Transmit(List_Chute_Arr[1].phuart, TX_toSlave, NUM_BYTE_SLAVE, HAL_MAX_DELAY);
-////			//db_i = getMicroSecond() - db_s;
-////			
-////			flag_flashLed_debug = true;
-////			
-////			flag_wait_sending_slave = true;
-//////			HAL_Delay(1);
-//////			On_Mode_Receive_Slave();
-////			List_Chute_Arr[1].cnt_mess_tx++;
-////			
-////			db_miss = List_Chute_Arr[1].cnt_mess_tx - 1 - List_Chute_Arr[1].cnt_mess_rx;
-////			db_phantram = (List_Chute_Arr[1].cnt_mess_rx*100)/List_Chute_Arr[1].cnt_mess_tx;
-////			
-////			flag_an_debug = 0;
-////			auto_send = 0;
-////		}
+////////		if(flag_an_debug == 1)
+////////		{
+////////			On_Mode_Send_Slave();
+////////			uint8_t addr_arr[15];
+////////			memset(addr_arr, ' ',15); 
+////////			sprintf((char*)addr_arr, "Dong chi so 0%d", 60); 
+////////			
+////////			TX_config_db[0] = 0x80 | (2 & 0x3F);
+////////			for(uint8_t i=0; i<15; i++)
+////////				TX_config_db[i+1] = addr_arr[i];
+////////			TX_config_db[16] = mode_config; //0xA6;
+////////			TX_config_db[17] = 0xA0;
+////////			TX_config_db[18] = 0xA1;
+////////			TX_config_db[19] = Cal_CheckSum(TX_config_db, 20);
+////////			
+////////			HAL_UART_Transmit(List_Chute_Arr[2].phuart, TX_config_db, 20, HAL_MAX_DELAY);
+////////		
+////////			On_Mode_Receive_Slave();
+////////			
+////////			flag_an_debug = 0;
+////////		}
+		
+		
+		
+		
+		
+		
+////////		if(auto_send >= cycle_auto)
+////////		{
+////////			On_Mode_Send_Slave();
+////////			//HAL_Delay(10);
+////////			TX_toSlave[0] = (List_Chute_Arr[ptr_autosend].sl_status & SLAVE_STATE_MASK) | (ptr_autosend & 0x3F);
+////////			TX_toSlave[1] = List_Chute_Arr[ptr_autosend].cnt_mess_tx;
+////////			TX_toSlave[NUM_BYTE_SLAVE-1] = Cal_CheckSum(TX_toSlave, NUM_BYTE_SLAVE);
+////////		
+////////			db_s = getMicroSecond();
+////////			start_send_slave = getMicroSecond();
+////////			HAL_UART_Transmit_DMA(List_Chute_Arr[ptr_autosend].phuart, TX_toSlave, NUM_BYTE_SLAVE);
+////////			
+////////			
+////////			//HAL_UART_Transmit(List_Chute_Arr[1].phuart, TX_toSlave, NUM_BYTE_SLAVE, HAL_MAX_DELAY);
+////////			//db_i = getMicroSecond() - db_s;
+////////			
+////////			flag_flashLed_debug = true;
+////////			
+////////			flag_wait_sending_slave = true;
+////////			List_Chute_Arr[ptr_autosend].cnt_mess_tx++;
+////////			
+////////			db_miss = List_Chute_Arr[ptr_autosend].cnt_mess_tx - 1 - List_Chute_Arr[ptr_autosend].cnt_mess_rx;
+////////			db_phantram = (List_Chute_Arr[ptr_autosend].cnt_mess_rx*100)/List_Chute_Arr[ptr_autosend].cnt_mess_tx;
+////////			
+////////			if(++ptr_autosend == NUMBER_SLAVE)
+////////				ptr_autosend = 1;
+////////			
+////////			flag_an_debug = 0;
+////////			auto_send = 0;
+////////		}
 		
 		Wait_Send_Slave();
 		
@@ -353,7 +392,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 57600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -386,7 +425,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 57600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -419,7 +458,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
+  huart3.Init.BaudRate = 57600;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;

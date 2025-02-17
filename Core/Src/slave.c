@@ -11,6 +11,9 @@
 
 #include "string.h"
 
+#include "app.h"
+
+
 /*
 BRIEF NOTE: 
 	
@@ -18,6 +21,8 @@ BRIEF NOTE:
 */
 /**********************************************************************************************************************************/
 /******EXTERN*******/
+	extern UART_HandleTypeDef huart1;
+
 	extern UART_HandleTypeDef huart2;
 	extern UART_HandleTypeDef huart3;
 
@@ -83,12 +88,12 @@ BRIEF NOTE:
 			List_Chute_Arr[index].ratio_miss = 0;
 		}
 		
-		List_Chute_Arr[1].sl_enable = true;
-		List_Chute_Arr[2].sl_enable = true;
-		List_Chute_Arr[3].sl_enable = true;
-		List_Chute_Arr[4].sl_enable = true;
-		List_Chute_Arr[5].sl_enable = true;
-		List_Chute_Arr[6].sl_enable = true;
+//		List_Chute_Arr[1].sl_enable = true;
+//		List_Chute_Arr[2].sl_enable = true;
+//		List_Chute_Arr[3].sl_enable = true;
+//		List_Chute_Arr[4].sl_enable = true;
+//		List_Chute_Arr[5].sl_enable = true;
+//		List_Chute_Arr[6].sl_enable = true;
 		
 		vSlaveCom.STATE = SLAVE_READ_HD;
 		vSlaveCom.rxByte = 0;	vSlaveCom.RxFlag = 0;
@@ -130,11 +135,11 @@ BRIEF NOTE:
 //========================================================================================
 //
 //========================================================================================
-	void Send_Slave_Sync(uint8_t _vSync)
+	void Send_Slave_Sync(uint8_t *_vSync)
 	{
 		On_Mode_Send_Slave();
 		
-		HAL_UART_Transmit_DMA(List_Chute_Arr[vSL_Ptr].phuart, &_vSync, 1);
+		HAL_UART_Transmit(List_Chute_Arr[vSL_Ptr].phuart, _vSync, 2, HAL_MAX_DELAY);
 		
 		On_Mode_Receive_Slave();
 	}
@@ -232,10 +237,16 @@ BRIEF NOTE:
 		//---------------------
 			case SLAVE_READ_HD:
 			{
-				if(pCOM->rxByte == 0xAC)
+				if(pCOM->rxByte == 0xFE)
 				{
 					RX_fromSlave[0] = pCOM->rxByte;
 					pCOM->STATE = SLAVE_READ_DT;
+				}
+				
+				if(pCOM->rxByte == 0xFD)
+				{
+					RX_fromSlave[0] = pCOM->rxByte;
+					pCOM->STATE = SLAVE_READ_DT_CONFIG;
 				}
 			
 				break;
@@ -260,6 +271,27 @@ BRIEF NOTE:
 				pCOM->STATE = SLAVE_READ_HD;
 				break;
 			}	
+			//================================================
+			case SLAVE_READ_DT_CONFIG:
+			{
+				RX_fromSlave[1] = pCOM->rxByte;
+				pCOM->STATE = SLAVE_READ_CS_CONFIG;
+				break;
+			}
+		//---------------------
+			case SLAVE_READ_CS_CONFIG:
+			{
+				RX_fromSlave[2] = pCOM->rxByte;
+				uint8_t check_CS = 0;
+				check_CS = Cal_CheckSum(RX_fromSlave, 3);
+				if(check_CS == RX_fromSlave[2])
+				{
+					List_Chute_Arr[RX_fromSlave[1]].sl_enable = true;
+				}
+				pCOM->STATE = SLAVE_READ_HD;
+				break;
+			}	
+			//---------------------
 		}
 		
 		HAL_UART_Receive_IT(pCOM->phuart, &pCOM->rxByte, 1);
@@ -272,35 +304,27 @@ BRIEF NOTE:
 //
 //========================================================================================
 	extern uint32_t db_i, db_s;
+	extern uint16_t flag_check_button;
 	
 	void Handle_Slave_RX(slave_com_t *pCOM)
 	{
-//		uint8_t CS_byte = 0;
+
 		uint8_t Slave_sequence = 0;
-//		
-//		CS_byte = Cal_CheckSum(RX_fromSlave, NUM_BYTE_SLAVE);
-//		if(CS_byte == RX_fromSlave[NUM_BYTE_SLAVE-1])
-//		{
-//			Slave_sequence = RX_fromSlave[0];
-//			List_Chute_Arr[Slave_sequence].sl_isFull = (RX_fromSlave[1] >> 4) & 0x0F;
-//			List_Chute_Arr[Slave_sequence].sl_flag_button = RX_fromSlave[1] & 0x0F;
-//			List_Chute_Arr[Slave_sequence].cnt_mess_rx++;
-//			List_Chute_Arr[Slave_sequence].cnt_disconnect = 0;
-//			List_Chute_Arr[Slave_sequence].sl_connected = true;
-//			
-//			db_i = getMicroSecond() - db_s;
-//		}	
-//		
-//		HAL_UARTEx_ReceiveToIdle_DMA(List_Chute_Arr[vSL_Ptr].phuart, RX_fromSlave, NUM_BYTE_SLAVE);
-//		__HAL_DMA_DISABLE_IT(List_Chute_Arr[vSL_Ptr].phuart->hdmarx, DMA_IT_HT);
+
 		if(pCOM->RxFlag == 1)
 		{
 			Slave_sequence = RX_fromSlave[1] & 0x3F;
-			List_Chute_Arr[Slave_sequence].sl_isFull = (RX_fromSlave[1] >> 7) & 0x0F;
-			List_Chute_Arr[Slave_sequence].sl_flag_button = (RX_fromSlave[1] >> 6) & 0x0F;
+			List_Chute_Arr[Slave_sequence].sl_isFull = (RX_fromSlave[1] >> 7) & 0x01;
+			//List_Chute_Arr[Slave_sequence].sl_flag_button = (RX_fromSlave[1] >> 6) & 0x01;
 			List_Chute_Arr[Slave_sequence].cnt_mess_rx++;
 			List_Chute_Arr[Slave_sequence].cnt_disconnect = 0;
 			List_Chute_Arr[Slave_sequence].sl_connected = true;
+			
+			if(((RX_fromSlave[1] >> 6) & 0x01) == 1)
+			{
+				List_Chute_Arr[Slave_sequence].sl_flag_button = 1;
+				flag_check_button = 1;
+			}
 		
 			pCOM->RxFlag = 0;
 		}
@@ -332,6 +356,9 @@ BRIEF NOTE:
 //	}
 	
 /*______________________________________________________________________________*/
+
+uint8_t APP_RX_BUF_Debug[100];
+uint16_t cnt_rx_db = 0;
 	
 	volatile uint16_t cnt1 = 0;
 	
@@ -343,6 +370,15 @@ BRIEF NOTE:
 			Read_Slave(&vSlaveCom);
 			Handle_Slave_RX(&vSlaveCom);
 			cnt1++;
+		}
+		/*RS485*/
+		if(huart->Instance == USART1)			
+		{    
+			Read_App(&vApp);
+			cnt1++;
+			APP_RX_BUF_Debug[cnt_rx_db] = vApp.rxByte;
+			if(++cnt_rx_db == 50)
+				cnt_rx_db = 0;
 		}
 	}
 

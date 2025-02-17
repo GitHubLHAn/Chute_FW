@@ -45,6 +45,13 @@ extern TIM_HandleTypeDef htim2;
 	volatile uint32_t start_time = 0, interval = 0;
 	volatile uint32_t _s = 0, _i = 0;
 	
+	uint8_t Full_check_arr[NUMBER_SLAVE];
+	
+	uint8_t mode_master = 0;
+	uint8_t ptr_config = 0;
+	
+	uint8_t TX_config[20];
+	
 /**********************************************************************************************************************************/
 /*******FUNCTION********/
 
@@ -72,7 +79,7 @@ extern TIM_HandleTypeDef htim2;
 			pSlavePort = &huart3;
 			pDebugPort = &huart2;
 		}
-		
+		memset(Full_check_arr, 0, NUMBER_SLAVE);
 	}
 
 //================================================================================
@@ -114,7 +121,7 @@ extern TIM_HandleTypeDef htim2;
 		if(flag_flashLed_debug)
 		{
 			ON_LED_DEBUG();
-			if(++cnt_flashLed_debug >= 20)
+			if(++cnt_flashLed_debug >= 10)
 			{
 				OFF_LED_DEBUG();
 				cnt_flashLed_debug = 0;
@@ -126,7 +133,7 @@ extern TIM_HandleTypeDef htim2;
 		if(flag_flashLed_app)
 		{
 			ON_LED_APP();
-			if(++cnt_flashLed_app >= 5)
+			if(++cnt_flashLed_app >= 10)
 			{
 				OFF_LED_APP();
 				cnt_flashLed_app = 0;
@@ -138,7 +145,7 @@ extern TIM_HandleTypeDef htim2;
 		if(flag_flashLed_trxA)
 		{
 			ON_LED_TRX_A();
-			if(++cnt_flashLed_trxA >= 3)
+			if(++cnt_flashLed_trxA >= 5)
 			{
 				OFF_LED_TRX_A();
 				cnt_flashLed_trxA = 0;
@@ -150,7 +157,7 @@ extern TIM_HandleTypeDef htim2;
 		if(flag_flashLed_trxB)
 		{
 			ON_LED_TRX_B();
-			if(++cnt_flashLed_trxB >= 3)
+			if(++cnt_flashLed_trxB >= 5)
 			{
 				OFF_LED_TRX_B();
 				cnt_flashLed_trxB = 0;
@@ -185,7 +192,8 @@ extern TIM_HandleTypeDef htim2;
 		if(flag_synchronize_slave)
 		{
 			On_Mode_Send_Slave();
-			Send_Slave_Sync(0xFF);	
+			uint8_t SYNC_arr[2] = {0xEF, 0xAE};
+			Send_Slave_Sync(SYNC_arr);	
 			flag_synchronize_slave = false;
 			return 0;
 		}
@@ -234,13 +242,59 @@ extern TIM_HandleTypeDef htim2;
 //================================================================================
 //	Hanlde status of Lamp											
 //================================================================================
+	volatile uint16_t cnt_check_full = 0;
+	volatile uint8_t flag_check_button = 0;
+	uint8_t sum_check = 0;
+	bool flag_full = 0;
 	
 	void Handle_Lamp(void)
 	{
+		flag_full = false;
+		if(cnt_check_full >= 50)
+		{
+			sum_check = 0;
+			
+			for(uint8_t i=0; i<NUMBER_SLAVE; i++)
+				sum_check += List_Chute_Arr[i].sl_isFull;
 		
-
-
+			if(sum_check != 0)
+				flag_full = true;
+			
+			if(flag_full)
+			{
+				ON_LAMP_RED();
+				ON_LAMP_GREEN();
+				ON_LAMP_YELLOW();	
+				//ON_SPEAKER();	
+			}
+			else{
+				OFF_LAMP_RED();
+				OFF_LAMP_GREEN();
+				OFF_LAMP_YELLOW();	
+				OFF_SPEAKER();	
+			}
 		
+			cnt_check_full = 0;
+		}
+		
+		if(flag_check_button == 1)
+		{
+			for(uint8_t j=0; j<NUMBER_SLAVE; j++)
+			{
+				if(List_Chute_Arr[j].sl_flag_button == 1)
+				{
+					if(List_Chute_Arr[j].sl_status == 0x00)
+						List_Chute_Arr[j].sl_status = 0x40;
+					else if(List_Chute_Arr[j].sl_status == 0x40)
+						List_Chute_Arr[j].sl_status = 0x00;
+				
+					List_Chute_Arr[j].sl_flag_button = 0;
+				}
+			
+			}
+			
+			flag_check_button = 0;
+		}
 	}
 	
 //================================================================================
@@ -256,40 +310,77 @@ extern TIM_HandleTypeDef htim2;
 //================================================================================
 //	Master State Machine function														
 //================================================================================
+	volatile uint16_t cnt_flag_config = 0;
+	uint32_t start_wait = 0;
+	
 	void Master_Process(void)
 	{
-		Send_Slave_Period();
+		if(mode_master == 0)
+		{
+			ON_LED_TRX_A();
+			ON_LED_TRX_B();
+			ON_LAMP_RED();
+			ON_LAMP_GREEN();
+			ON_LAMP_YELLOW();	
+			if(cnt_flag_config >= 500)
+			{		
+				ON_LAMP_RED();
+				ON_LAMP_GREEN();
+				ON_LAMP_YELLOW();
+				if(++ptr_config > NUMBER_SLAVE)
+				{
+					mode_master = 1;
+					start_wait = getMicroSecond();
+					ON_LED_TRX_A();
+					ON_LED_TRX_B();
+				}
+				else
+				{
+					On_Mode_Send_Slave();
+					uint8_t addr_arr[15];
+					memset(addr_arr, ' ',15); 
+					sprintf((char*)addr_arr, "Dong chi so 0%d", ptr_config);
+					
+					TX_config[0] = 0x80 | (ptr_config & 0x3F);
+					for(uint8_t i=0; i<15; i++)
+						TX_config[i+1] = addr_arr[i];
+					TX_config[16] = 0xA6;
+					TX_config[17] = 0xA0;
+					TX_config[18] = 0x80;
+					TX_config[19] = Cal_CheckSum(TX_config, 20);
+					
+					HAL_UART_Transmit(List_Chute_Arr[ptr_config].phuart, TX_config, 20, HAL_MAX_DELAY);
+					
+					
+					On_Mode_Receive_Slave();
+				}
+				
+				cnt_flag_config = 0;
+			}
+		}
 		
-		
-//		switch(vStateMaster)
-//		{
-//		/*------------------------------------------*/
-//			case MASTER_READY:
-//			{
-//			 
-//			
-//				break;
-//			}
-//		/*------------------------------------------*/
-//			case MASTER_RUNNING:
-//			{
-//			
-//				Send_Slave_Period();
-//			
-//				break;
-//			}
-//		/*------------------------------------------*/
-//			case MASTER_WAIT:
-//			{
-//				
-//				/*Do nothing, wait command change status from  App*/
-//				break;
-//			}
-//		/*------------------------------------------*/
-//			default:
-//				
-//				vStateMaster = MASTER_READY;
-//		}
+		if(mode_master == 1)
+		{
+			uint32_t interval_wait = getMicroSecond() - start_wait;
+			
+			if(interval_wait > 2000000)		// after 3s
+			{
+				mode_master = 2;
+				OFF_LED_TRX_A();
+				OFF_LED_TRX_B();
+				OFF_LAMP_RED();
+				OFF_LAMP_GREEN();
+				OFF_LAMP_YELLOW();	
+			}
+		}
+
+		if(mode_master == 2)
+		{
+			
+			Send_Slave_Period();
+			Handle_Lamp();
+		}
+
 	}
 	
 	
@@ -301,6 +392,7 @@ extern TIM_HandleTypeDef htim2;
 
 	volatile uint16_t cnt_debug = 0;
 	extern volatile uint16_t auto_send;
+	
 	
 	void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	{
@@ -315,6 +407,8 @@ extern TIM_HandleTypeDef htim2;
 				cnt_send_slave++;
 				cnt_debug++;
 				auto_send++;
+				cnt_check_full++;
+				cnt_flag_config++;
 					
 				/*Handle function*/
 				Flash_Led();
@@ -328,8 +422,9 @@ extern TIM_HandleTypeDef htim2;
 				/*Increase cnt variable*/
 				if(!flag_synchronize_slave)
 				{
-					cnt_synchronize_slave++;
-					if(cnt_synchronize_slave != 0 && (cnt_synchronize_slave%30 ==0 ))
+					if(++cnt_synchronize_slave == 60)
+						cnt_synchronize_slave = 0;
+					if(cnt_synchronize_slave%30 ==0)
 					{
 						flag_synchronize_slave = true;
 						//cnt_synchronize_slave = 0;
